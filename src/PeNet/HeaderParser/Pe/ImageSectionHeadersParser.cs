@@ -9,11 +9,15 @@ namespace PeNet.HeaderParser.Pe
         private readonly ushort _numOfSections;
         private readonly ulong _imageBaseAddress;
 
-        internal ImageSectionHeadersParser(IRawFile peFile, uint offset, ushort numOfSections, ulong imageBaseAddress)
+        private readonly bool _inProcessMemory;
+
+        internal ImageSectionHeadersParser(IRawFile peFile, uint offset, ushort numOfSections, ulong imageBaseAddress, bool inProcessMemory)
             : base(peFile, offset)
         {
             _numOfSections = numOfSections;
             _imageBaseAddress = imageBaseAddress;
+
+            _inProcessMemory = inProcessMemory;
         }
 
         protected override ImageSectionHeader[] ParseTarget()
@@ -33,7 +37,7 @@ namespace PeNet.HeaderParser.Pe
             const uint secSize = 0x28; // Every section header is 40 bytes in size.
             for (uint i = 0; i < _numOfSections; i++)
             {
-                sh[i] = new ImageSectionHeader(PeFile, Offset + i*secSize, _imageBaseAddress);
+                sh[i] = new ImageSectionHeader(PeFile, Offset + i*secSize, _imageBaseAddress, _inProcessMemory);
             }
 
             Array.Sort(sh, Comparison);

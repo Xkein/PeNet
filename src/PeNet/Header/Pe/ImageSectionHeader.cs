@@ -20,12 +20,25 @@ namespace PeNet.Header.Pe
             : base(peFile, offset)
         {
             ImageBaseAddress = imageBaseAddress;
+            InProcessMemory = false;
+        }
+
+        internal ImageSectionHeader(IRawFile peFile, long offset, ulong imageBaseAddress, bool inProcessMemory)
+            : base(peFile, offset)
+        {
+            ImageBaseAddress = imageBaseAddress;
+            InProcessMemory = inProcessMemory;
         }
 
         /// <summary>
         /// Base address of the image from the Optional header.
         /// </summary>
         public ulong ImageBaseAddress { get; }
+
+        /// <summary>
+        ///     Whether the PE file is load and resolved by OS.
+        /// </summary>
+        public bool InProcessMemory { get; }
 
         /// <summary>
         /// The section name as a string.

@@ -10,9 +10,12 @@ namespace PeNet.HeaderParser.Pe
         private readonly ImageNtHeadersParser? _imageNtHeadersParser;
         private ImageSectionHeadersParser? _imageSectionHeadersParser;
 
-        internal NativeStructureParsers(IRawFile peFile)
+        private readonly bool _inProcessMemory;
+
+        internal NativeStructureParsers(IRawFile peFile, bool inProcessMemory)
         {
             _peFile = peFile;
+            _inProcessMemory = inProcessMemory;
 
             // Init all parsers
             _imageDosHeaderParser = InitImageDosHeaderParser();
@@ -38,7 +41,8 @@ namespace PeNet.HeaderParser.Pe
             return new ImageSectionHeadersParser(
                 _peFile, GetSecHeaderOffset(), 
                 ImageNtHeaders.FileHeader.NumberOfSections, 
-                ImageNtHeaders.OptionalHeader.ImageBase
+                ImageNtHeaders.OptionalHeader.ImageBase,
+                _inProcessMemory
                 );
         }
 

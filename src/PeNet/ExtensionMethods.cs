@@ -68,7 +68,7 @@ namespace PeNet
                 throw new Exception("Cannot find corresponding section.");
             }
 
-            return rva - section.VirtualAddress + section.PointerToRawData;
+            return section.InProcessMemory ? rva : rva - section.VirtualAddress + section.PointerToRawData;
         }
 
         /// <summary>

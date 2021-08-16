@@ -33,6 +33,11 @@ namespace PeNet
         /// </summary>
         public IRawFile RawFile { get; }
 
+        /// <summary>
+        ///     Whether the PE file is loaded and resolved by OS.
+        /// </summary>
+        public bool InProcessMemory { get; }
+
         private string? _impHash;
         private string? _typeRefHash;
         private string? _md5;
@@ -40,12 +45,12 @@ namespace PeNet
         private string? _sha256;
         private NetGuids? _netGuids;
 
-
-        public PeFile(IRawFile peFile)
+        public PeFile(IRawFile peFile, bool inProcessMemory = false)
         {
             RawFile = peFile;
+            InProcessMemory = inProcessMemory;
 
-            _nativeStructureParsers = new NativeStructureParsers(RawFile);
+            _nativeStructureParsers = new NativeStructureParsers(RawFile, inProcessMemory);
 
             if (ImageNtHeaders?.OptionalHeader?.DataDirectory != null)
                 if (ImageSectionHeaders != null)
@@ -69,8 +74,8 @@ namespace PeNet
         ///     Create a new PeFile object.
         /// </summary>
         /// <param name="buff">A PE file a byte array.</param>
-        public PeFile(byte[] buff)
-            : this(new BufferFile(buff))
+        public PeFile(byte[] buff, bool inProcessMemory = false)
+            : this(new BufferFile(buff), inProcessMemory)
         {
         }
 
@@ -78,8 +83,8 @@ namespace PeNet
         ///     Create a new PeFile object.
         /// </summary>
         /// <param name="peFile">Path to a PE file.</param>
-        public PeFile(string peFile)
-            : this(File.ReadAllBytes(peFile))
+        public PeFile(string peFile, bool inProcessMemory = false)
+            : this(File.ReadAllBytes(peFile), inProcessMemory)
         {
         }
 
@@ -87,8 +92,8 @@ namespace PeNet
         ///     Create a new PeFile object.
         /// </summary>
         /// <param name="peFile">Stream containing a PE file.</param>
-        public PeFile(Stream peFile)
-            : this(new StreamFile(peFile))
+        public PeFile(Stream peFile, bool inProcessMemory = false)
+            : this(new StreamFile(peFile), inProcessMemory)
         {
         }
 
@@ -98,9 +103,9 @@ namespace PeNet
         /// <param name="file">Path to a possible PE file.</param>
         /// <param name="peFile">Parsed PE file or Null.</param>
         /// <returns>True if parable PE file and false if not.</returns>
-        public static bool TryParse(string file, out PeFile? peFile)
+        public static bool TryParse(string file, out PeFile? peFile, bool inProcessMemory = false)
         {
-            return TryParse(File.ReadAllBytes(file), out peFile);
+            return TryParse(File.ReadAllBytes(file), out peFile, inProcessMemory);
         }
 
         /// <summary>
@@ -109,7 +114,7 @@ namespace PeNet
         /// <param name="buff">Buffer containing a possible PE file.</param>
         /// <param name="peFile">Parsed PE file or Null.</param>
         /// <returns>True if parable PE file and false if not.</returns>
-        public static bool TryParse(byte[] buff, out PeFile? peFile)
+        public static bool TryParse(byte[] buff, out PeFile? peFile, bool inProcessMemory = false)
         {
             peFile = null;
 
@@ -118,7 +123,7 @@ namespace PeNet
 
             try
             {
-                peFile = new PeFile(buff);
+                peFile = new PeFile(buff, inProcessMemory);
             }
             catch
             {
@@ -135,7 +140,7 @@ namespace PeNet
         /// <param name="buff">Stream containing a possible PE file.</param>
         /// <param name="peFile">Parsed PE file or Null.</param>
         /// <returns>True if parable PE file and false if not.</returns>
-        public static bool TryParse(Stream file, out PeFile? peFile)
+        public static bool TryParse(Stream file, out PeFile? peFile, bool inProcessMemory = false)
         {
             peFile = null;
 
@@ -144,7 +149,7 @@ namespace PeNet
 
             try
             {
-                peFile = new PeFile(file);
+                peFile = new PeFile(file, inProcessMemory);
             }
             catch
             {
@@ -161,7 +166,7 @@ namespace PeNet
         /// <param name="buff">Memory mapped file containing a possible PE file.</param>
         /// <param name="peFile">Parsed PE file or Null.</param>
         /// <returns>True if parable PE file and false if not.</returns>
-        public static bool TryParse(MMFile file, out PeFile? peFile)
+        public static bool TryParse(MMFile file, out PeFile? peFile, bool inProcessMemory = false)
         {
             peFile = null;
 
@@ -170,7 +175,7 @@ namespace PeNet
 
             try
             {
-                peFile = new PeFile(file);
+                peFile = new PeFile(file, inProcessMemory);
             }
             catch
             {
